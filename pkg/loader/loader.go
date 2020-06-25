@@ -1,7 +1,6 @@
 package loader
 
 import (
-	"os"
 	"fmt"
 	"strconv"
 	"strings"
@@ -12,7 +11,24 @@ import (
 	pg "../postgres"
 )
 
-const habrHref = "https://habr.com/ru/post/%d/"
+const (
+	habrHref = "https://habr.com/ru/post/%d/"
+	dateLayout = "2 Jan 2006 15:04"
+)
+var months = map[string]string{
+	"января": "Jan",
+	"февраля": "Feb",
+	"марта": "Mar",
+	"апреля": "Apr",
+	"мая": "May",
+	"июня": "Jun",
+	"июля": "Jul",
+	"августа": "Aug",
+	"сентября": "Sep",
+	"октября": "Oct",
+	"ноября": "Nov",
+	"декабря": "Dec",
+}
 
 func LoadPost(postID int) (pg.HabrPost, error)  {
 	resp, err := soup.Get(fmt.Sprintf(habrHref, postID))
@@ -47,11 +63,12 @@ func GetViews(doc soup.Root) (int, error) {
 
 func GetDate(doc soup.Root) (time.Time, error) {
 	postDate := doc.Find("span", "class", "post__time").Text()
-	layout := "2006-01-02T15:04:05.000Z"
-	t, err := time.Parse(layout, postDate)
-
+	month := strings.Split(postDate, " ")[1]
+	postDate = strings.Replace(postDate, month, months[month], 1)
+	postDate = strings.Replace(postDate, " в ", " ", 1)
+	date, err := time.Parse(dateLayout, postDate)
 	if err != nil {
-		fmt.Println(err)
+		return time.Time{}, err
 	}
-
+	return date, err
 }
