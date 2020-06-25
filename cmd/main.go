@@ -2,36 +2,41 @@ package main
 
 import (
 	"fmt"
-	"strings"
+	"log"
 	"time"
+
+	"../pkg/loader"
 )
 
+const cfgPath = "config/config.json"
+
 func main() {
-	months := map[string]string{
-		"января": "Jan",
-		"февраля": "Feb",
-		"марта": "Mar",
-		"апреля": "Apr",
-		"мая": "May",
-		"июня": "Jun",
-		"июля": "Jul",
-		"августа": "Aug",
-		"сентября": "Sep",
-		"октября": "Oct",
-		"ноября": "Nov",
-		"декабря": "Dec",
-	}
-	layout := "2 Jan 2006 15:04"
-	date := "2 июня 2006 в 12:09"
-
-
-	month := strings.Split(date, " ")[1]
-	date = strings.Replace(date, month, months[month], 1)
-	date = strings.Replace(date, " в ", " ", 1)
-
-	t, err := time.Parse(layout, date)
+	cfg, err := service.GetConfig(cfgPath)
 	if err != nil {
-		fmt.Println(err)
+		log.Fatal(err)
 	}
-	fmt.Println(t)
+	newsService, err := service.NewNewsService(
+		cfg.VKToken, cfg.PGUser, cfg.PGPass, cfg.PGHost, cfg.PGPort, cfg.PGName)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	groupsScreenNames,err := service.GetGroupsScreenNames(groupsPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := newsService.InitDB(); err != nil {
+		log.Fatal(err)
+	}
+	if err := newsService.AddNewsSources(groupsScreenNames); err != nil {
+		log.Fatal(err)
+	}
+	for {
+		if err := newsService.LoadNews(100); err != nil {
+			log.Println(err)
+		} else {
+			fmt.Printf("\n")
+		}
+		time.Sleep(time.Duration(cfg.Interval) * time.Second)
+	}
 }

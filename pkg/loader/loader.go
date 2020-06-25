@@ -37,16 +37,36 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	}
 	doc := soup.HTMLParse(resp)
 
+	date, err := GetDate(doc)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+	viewsCount, err := GetViews(doc)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
+	commentsSpan := doc.Find("span", "class", "comments-section__head-counter").Text()
+	commentsCount, err := strconv.ParseInt(commentsSpan, 10, 64)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
+	bookmarksSpan := doc.Find("span", "class", "bookmark__counter js-favs_count").Text()
+	bookmarksCount, err := strconv.ParseInt(bookmarksSpan, 10, 64)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
 
 	return pg.HabrPost{
-		ID:             0,
-		Date:           time.Time{},
-		Title:          "",
-		Text:           "",
-		ViewsCount:     0,
-		CommentsCount:  0,
-		BookmarksCount: 0,
-		Rating:         "",
+		ID:             postID,
+		Date:           date,
+		Title:          doc.Find("span", "class", "post__title-text").Text(),
+		Text:           doc.Find("div", "class", "post__text").Text(),
+		ViewsCount:     viewsCount,
+		CommentsCount:  int(commentsCount),
+		BookmarksCount: int(bookmarksCount),
+		Rating:         doc.Find("span", "class", "voting-wjt__counter").Text(),
 	}, err
 }
 
