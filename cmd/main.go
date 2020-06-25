@@ -1,11 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"log"
-	"time"
 
-	"../pkg/loader"
+	"../pkg/service"
 )
 
 const cfgPath = "config/config.json"
@@ -15,28 +13,26 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	newsService, err := service.NewNewsService(
-		cfg.VKToken, cfg.PGUser, cfg.PGPass, cfg.PGHost, cfg.PGPort, cfg.PGName)
+	postsLoader, err := service.NewPostsLoaderService(
+		cfg.PGUser, cfg.PGPass, cfg.PGHost, cfg.PGPort, cfg.PGName)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	groupsScreenNames,err := service.GetGroupsScreenNames(groupsPath)
-	if err != nil {
+	if err := postsLoader.InitDB(); err != nil {
 		log.Fatal(err)
 	}
-	if err := newsService.InitDB(); err != nil {
-		log.Fatal(err)
+	for postID := 1; postID <= 10; postID++ {
+		if err := postsLoader.DownloadPost(postID); err != nil {
+			log.Printf("error: %s\n", err)
+		}
 	}
-	if err := newsService.AddNewsSources(groupsScreenNames); err != nil {
-		log.Fatal(err)
-	}
+	/*
 	for {
 		if err := newsService.LoadNews(100); err != nil {
 			log.Println(err)
 		} else {
-			fmt.Printf("\n")
+			log.Println()
 		}
 		time.Sleep(time.Duration(cfg.Interval) * time.Second)
-	}
+	}*/
 }
