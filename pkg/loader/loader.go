@@ -36,29 +36,31 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		return pg.HabrPost{}, err
 	}
 	doc := soup.HTMLParse(resp)
-	if doc.Find("span", "class", "post__time").Error != nil {
-		return pg.HabrPost{}, fmt.Errorf("post with %d post id not found", postID)
+
+	titleNode := doc.Find("span", "class", "post__title-text")
+	textNode := doc.Find("div", "class", "post__text")
+	ratingNode := doc.Find("span", "class", "voting-wjt__counter")
+
+	if titleNode.Pointer == nil || textNode.Pointer == nil || ratingNode.Pointer == nil {
+		return pg.HabrPost{}, fmt.Errorf("post with post_id %d not found", postID)
 	}
 
-	date, err := parseDateSpan(doc.Find("span", "class", "post__time").Text())
-	if err != nil {
-		return pg.HabrPost{}, err
-	}
-	viewsCount, err := parseViewsSpan(doc.Find("span", "class", "post-stats__views-count").Text())
-	if err != nil {
-		return pg.HabrPost{}, err
-	}
-
-	commentsSpan := doc.Find("span", "class", "comments-section__head-counter").Text()
-	commentsCount, err := strconv.ParseInt(
-		strings.TrimSpace(commentsSpan), 10, 64)
+	date, err := getDate(&doc)
 	if err != nil {
 		return pg.HabrPost{}, err
 	}
 
-	bookmarksSpan := doc.Find("span", "class", "bookmark__counter").Text()
-	bookmarksCount, err := strconv.ParseInt(
-		strings.TrimSpace(bookmarksSpan), 10, 64)
+	viewsCount, err := getViewsCount(&doc)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
+	commentsCount, err := getCommentsCount(&doc)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
+	bookmarksCount, err := getBookmarksCount(&doc)
 	if err != nil {
 		return pg.HabrPost{}, err
 	}
@@ -66,13 +68,59 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	return pg.HabrPost{
 		ID:             postID,
 		Date:           date,
-		Title:          doc.Find("span", "class", "post__title-text").Text(),
-		Text:           doc.Find("div", "class", "post__text").Text(),
+		Title:          titleNode.Text(),
+		Text:           textNode.Text(),
 		ViewsCount:     viewsCount,
-		CommentsCount:  int(commentsCount),
-		BookmarksCount: int(bookmarksCount),
-		Rating:         doc.Find("span", "class", "voting-wjt__counter").Text(),
+		CommentsCount:  commentsCount,
+		BookmarksCount: bookmarksCount,
+		Rating:         ratingNode.Text(),
 	}, err
+}
+
+func getDate(doc *soup.Root) (time.Time, error) {
+	postTimeNode := doc.Find("span", "class", "post__time")
+	if postTimeNode.Pointer == nil {
+		return time.Time{}, fmt.Errorf("post time span not found")
+	}
+	return parseDateSpan(postTimeNode.Text())
+}
+
+func getViewsCount(doc *soup.Root) (int, error) {
+	viewsSpanNode := doc.Find("span", "class", "post-stats__views-count")
+	if viewsSpanNode.Pointer == nil {
+		return 0, fmt.Errorf("views span not found")
+	}
+	viewsCount, err := parseViewsSpan(viewsSpanNode.Text())
+	if err != nil {
+		return 0, err
+	}
+	return viewsCount, err
+}
+
+func getCommentsCount(doc *soup.Root) (int, error) {
+	commentsSpanNode := doc.Find("span", "class", "comments-section__head-counter")
+	if commentsSpanNode.Pointer == nil {
+		return 0, fmt.Errorf("comments span not found")
+	}
+	commentsCount, err := strconv.ParseInt(
+		strings.TrimSpace(commentsSpanNode.Text()), 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return int(commentsCount), err
+}
+
+func getBookmarksCount(doc *soup.Root) (int, error) {
+	bookmarksSpanNode := doc.Find("span", "class", "bookmark__counter")
+	if bookmarksSpanNode.Pointer == nil {
+		return 0, fmt.Errorf("bookmarks span not found")
+	}
+	bookmarksCount, err := strconv.ParseInt(
+		strings.TrimSpace(bookmarksSpanNode.Text()), 10, 64)
+	if err != nil {
+		return 0, err
+	}
+	return int(bookmarksCount), err
 }
 
 func parseViewsSpan(viewsSpan string) (int, error) {
