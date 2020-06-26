@@ -42,6 +42,7 @@ func main() {
 				if err := postsLoader.DownloadPost(postID); err != nil {
 					log.Printf("error: %s\n", err)
 				}
+				log.Printf("loaded post with post id %d\n", postID)
 			}
 			if err := postsLoader.CloseDBConn(); err != nil {
 				log.Println(err)
