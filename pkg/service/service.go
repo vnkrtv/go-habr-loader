@@ -18,6 +18,10 @@ func (s *PostsLoaderService) InitDB() error {
 	return s.db.CreateSchema()
 }
 
+func (s *PostsLoaderService) CloseDBConn() error {
+	return s.db.CloseConnection()
+}
+
 func (s *PostsLoaderService) DownloadPost(postID int) error {
 	post, err := loader.LoadPost(postID)
 	if err != nil {

@@ -37,7 +37,7 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	}
 	doc := soup.HTMLParse(resp)
 	if doc.Find("span", "class", "post__time").Error != nil {
-		return pg.HabrPost{}, fmt.Errorf("post with %s post id not found", postID)
+		return pg.HabrPost{}, fmt.Errorf("post with %d post id not found", postID)
 	}
 
 	date, err := parseDateSpan(doc.Find("span", "class", "post__time").Text())

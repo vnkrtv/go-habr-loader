@@ -34,6 +34,10 @@ func OpenConnection(user, password, host, port, dbName string) (*Storage, error)
 	return &Storage{db: db}, err
 }
 
+func (s *Storage) CloseConnection() error {
+	return s.db.Close()
+}
+
 func (s *Storage) CreateSchema() error {
 	res := s.db.MustExec(dbSchema)
 	_, err := res.RowsAffected()
