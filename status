@@ -1,8 +1,0 @@
-#!/bin/bash
-
-loaded=$(cat logs.txt | grep 'loaded' | wc -l)
-error=$(cat logs.txt | grep 'not found' | wc -l)
-GET_error=$(cat logs.txt | grep 'GET' | wc -l)
-echo "Loaded: ${loaded}"
-echo "Post not found error: ${error}" 
-echo "Request error: ${GET_error}"
