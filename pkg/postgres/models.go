@@ -40,7 +40,7 @@ CREATE TABLE posts (
              NOT NULL,
 
 	tags_list TEXT
-             NOT NULL,
+             NOT NULL
 );`
 
 type HabrPost struct {
