@@ -40,12 +40,9 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	titleNode := doc.Find("span", "class", "post__title-text")
 	textNode := doc.Find("div", "class", "post__text")
 	ratingNode := doc.Find("span", "class", "voting-wjt__counter")
-	authorNode := doc.Find("a", "class", "user-info__nickname user-info__nickname_doggy")
-	habsNode := doc.Find("ul", "class", "inline-list inline-list_fav-tags js-post-hubs")
-	tagsNode := doc.Find("ul", "class", "inline-list inline-list_fav-tags js-post-tags")
+	authorNode := doc.Find("a", "class", "user-info__nickname_doggy")
 
-	if titleNode.Pointer == nil || textNode.Pointer == nil || ratingNode.Pointer == nil ||
-		authorNode.Pointer == nil || habsNode.Pointer == nil || tagsNode.Pointer == nil{
+	if titleNode.Pointer == nil || textNode.Pointer == nil || ratingNode.Pointer == nil || authorNode.Pointer == nil {
 		return pg.HabrPost{}, fmt.Errorf("post with post_id %d not found", postID)
 	}
 
@@ -54,6 +51,15 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		return pg.HabrPost{}, err
 	}
 
+	habs, err := getHabs(&doc)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
+	tags, err := getTags(&doc)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
 
 	viewsCount, err := getViewsCount(&doc)
 	if err != nil {
@@ -79,8 +85,8 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		CommentsCount:  commentsCount,
 		BookmarksCount: bookmarksCount,
 		AuthorNickname: authorNode.Text(),
-		HabsList:       habsNode.FullText(),
-		TagsList:       tagsNode.FullText(),
+		HabsList:       habs,
+		TagsList:       tags,
 		Rating:         ratingNode.Text(),
 	}, err
 }
@@ -129,6 +135,34 @@ func getBookmarksCount(doc *soup.Root) (int, error) {
 		return 0, err
 	}
 	return int(bookmarksCount), err
+}
+
+func getHabs(doc *soup.Root) (string, error) {
+	habsNode := doc.Find("ul", "class", "js-post-hubs")
+	if habsNode.Pointer == nil {
+		return "", fmt.Errorf("habs ul not found")
+	}
+	return parseUlTag(habsNode.FullText()), nil
+}
+
+func getTags(doc *soup.Root) (string, error) {
+	tagsNode := doc.Find("ul", "class", "js-post-tags")
+	if tagsNode.Pointer == nil {
+		return "", fmt.Errorf("tags ul not found")
+	}
+	return parseUlTag(tagsNode.FullText()), nil
+}
+
+func parseUlTag(content string) string {
+	bufSlice := strings.Split(content, "\n")
+	var strSlice []string
+	for i := range bufSlice {
+		buf := strings.TrimSpace(bufSlice[i])
+		if len(buf) != 0 {
+			strSlice = append(strSlice, strings.TrimSpace(bufSlice[i]))
+		}
+	}
+	return strings.Join(strSlice, ",")
 }
 
 func parseViewsSpan(viewsSpan string) (int, error) {

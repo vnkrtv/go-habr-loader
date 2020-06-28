@@ -42,8 +42,9 @@ func main() {
 				time.Sleep(time.Second + time.Millisecond * time.Duration(i * 137 % 3313))
 				if err := postsLoader.DownloadPost(postID); err != nil {
 					log.Printf("error: %s\n", err)
+				} else {
+					log.Printf("loaded post with post id %d\n", postID)
 				}
-				log.Printf("loaded post with post id %d\n", postID)
 			}
 			if err := postsLoader.CloseDBConn(); err != nil {
 				log.Println(err)
