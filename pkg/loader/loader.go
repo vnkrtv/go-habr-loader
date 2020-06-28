@@ -68,8 +68,8 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	return pg.HabrPost{
 		ID:             postID,
 		Date:           date,
-		Title:          titleNode.Text(),
-		Text:           textNode.Text(),
+		Title:          titleNode.FullText(),
+		Text:           textNode.FullText(),
 		ViewsCount:     viewsCount,
 		CommentsCount:  commentsCount,
 		BookmarksCount: bookmarksCount,
