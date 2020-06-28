@@ -31,12 +31,17 @@ CREATE TABLE posts (
 			 CHECK (bookmarks_count>= 0),
 			 
 	rating   TEXT
-			 NOT NULL
+			 NOT NULL,
+
+	author_nickname TEXT
+             NOT NULL,
+
+	habs_list TEXT
+             NOT NULL,
+
+	tags_list TEXT
+             NOT NULL,
 );`
-
-type Comment struct {
-
-}
 
 type HabrPost struct {
 	ID             int       `db:"post_id"`
@@ -47,4 +52,7 @@ type HabrPost struct {
 	CommentsCount  int       `db:"comments_count"`
 	BookmarksCount int       `db:"bookmarks_count"`
 	Rating         string    `db:"rating"`
+	AuthorNickname string    `db:"author_nickname"`
+	HabsList       string    `db:"habs_list"`
+	TagsList       string    `db:"tags_list"`
 }

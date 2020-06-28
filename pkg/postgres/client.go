@@ -47,9 +47,11 @@ func (s *Storage) CreateSchema() error {
 func (s *Storage) InsertPost(post HabrPost) error {
 	sql := `
 		INSERT INTO 
-			posts (post_id, title, text, date, views_count, comments_count, bookmarks_count, rating) 
+			posts (post_id, title, text, date, views_count, comments_count, 
+			       bookmarks_count, rating, author_nickname, habs_list, tags_list) 
 		VALUES 
-			(:post_id, :title, :text, :date, :views_count, :comments_count, :bookmarks_count, :rating)`
+			(:post_id, :title, :text, :date, :views_count, :comments_count, 
+			 :bookmarks_count, :rating, :author_nickname, :habs_list, :tags_list)`
 	_, err := s.db.NamedExec(sql, &post)
 	return err
 }
@@ -69,7 +71,8 @@ func (s *Storage) UpdatePost(post HabrPost) error {
 		UPDATE posts SET 
 			title = :title, text = :text, 
 			views_count = :views_count, comments_count = :comments_count,  
-			bookmarks_count = :bookmarks_count, rating = :rating 
+			bookmarks_count = :bookmarks_count, rating = :rating,
+		    habs_list = :habs_list, tags_list = :tags_list
 		WHERE 
 			post_id = :post_id AND date = :date`
 	_, err := s.db.NamedExec(sql, &post)

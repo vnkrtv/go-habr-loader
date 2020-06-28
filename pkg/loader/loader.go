@@ -40,8 +40,12 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	titleNode := doc.Find("span", "class", "post__title-text")
 	textNode := doc.Find("div", "class", "post__text")
 	ratingNode := doc.Find("span", "class", "voting-wjt__counter")
+	authorNode := doc.Find("a", "class", "user-info__nickname user-info__nickname_doggy")
+	habsNode := doc.Find("ul", "class", "inline-list inline-list_fav-tags js-post-hubs")
+	tagsNode := doc.Find("ul", "class", "inline-list inline-list_fav-tags js-post-tags")
 
-	if titleNode.Pointer == nil || textNode.Pointer == nil || ratingNode.Pointer == nil {
+	if titleNode.Pointer == nil || textNode.Pointer == nil || ratingNode.Pointer == nil ||
+		authorNode.Pointer == nil || habsNode.Pointer == nil || tagsNode.Pointer == nil{
 		return pg.HabrPost{}, fmt.Errorf("post with post_id %d not found", postID)
 	}
 
@@ -49,6 +53,7 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 	if err != nil {
 		return pg.HabrPost{}, err
 	}
+
 
 	viewsCount, err := getViewsCount(&doc)
 	if err != nil {
@@ -73,6 +78,9 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		ViewsCount:     viewsCount,
 		CommentsCount:  commentsCount,
 		BookmarksCount: bookmarksCount,
+		AuthorNickname: authorNode.Text(),
+		HabsList:       habsNode.FullText(),
+		TagsList:       tagsNode.FullText(),
 		Rating:         ratingNode.Text(),
 	}, err
 }
