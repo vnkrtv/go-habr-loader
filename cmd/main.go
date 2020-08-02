@@ -5,7 +5,7 @@ import (
 	"runtime"
 	"time"
 
-	"../pkg/service"
+	"github.com/LeadNess/go-habr-loader/pkg/service"
 )
 
 const cfgPath = "config/config.json"

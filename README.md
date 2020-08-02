@@ -1,5 +1,6 @@
 # go-habr-loader
 
+[![Build Status](https://travis-ci.com/LeadNess/go-habr-loader.svg?branch=master)](https://travis-ci.com/LeadNess/go-habr-loader)
 ### Description
 
 Loads all posts from habr.com to PostgreSQL.
