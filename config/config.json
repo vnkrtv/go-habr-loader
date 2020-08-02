@@ -4,6 +4,5 @@
   "pgpass":     "password",
   "pgname":     "habr",
   "pghost":     "172.17.0.2",
-  "pgport":     "5432",
-  "interval":   3600
+  "pgport":     "5432"
 }
