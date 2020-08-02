@@ -6,29 +6,28 @@ import (
 	"strings"
 	"time"
 
+	pg "github.com/LeadNess/go-habr-loader/pkg/postgres"
 	"github.com/anaskhan96/soup"
-
-	pg "../postgres"
 )
 
-const (
+var (
 	habrHref = "https://habr.com/ru/post/%d/"
 	dateLayout = "2 Jan 2006 15:04"
+	months = map[string]string{
+		"января": "Jan",
+		"февраля": "Feb",
+		"марта": "Mar",
+		"апреля": "Apr",
+		"мая": "May",
+		"июня": "Jun",
+		"июля": "Jul",
+		"августа": "Aug",
+		"сентября": "Sep",
+		"октября": "Oct",
+		"ноября": "Nov",
+		"декабря": "Dec",
+	}
 )
-var months = map[string]string{
-	"января": "Jan",
-	"февраля": "Feb",
-	"марта": "Mar",
-	"апреля": "Apr",
-	"мая": "May",
-	"июня": "Jun",
-	"июля": "Jul",
-	"августа": "Aug",
-	"сентября": "Sep",
-	"октября": "Oct",
-	"ноября": "Nov",
-	"декабря": "Dec",
-}
 
 func LoadPost(postID int) (pg.HabrPost, error)  {
 	resp, err := soup.Get(fmt.Sprintf(habrHref, postID))

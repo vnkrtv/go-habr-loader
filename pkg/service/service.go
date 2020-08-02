@@ -1,8 +1,8 @@
 package service
 
 import (
-	"../loader"
-	pg "../postgres"
+	"github.com/LeadNess/go-habr-loader/pkg/loader"
+	pg "github.com/LeadNess/go-habr-loader/pkg/postgres"
 )
 
 type PostsLoaderService struct {
