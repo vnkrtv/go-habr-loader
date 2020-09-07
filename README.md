@@ -10,8 +10,8 @@ Loads all posts from habr.com to PostgreSQL.
 - Clone this repository:
   - ```git clone https://github.com/LeadNess/go-habr-loader.git```
 - Set settings (such as PostgreSQL connection information) which are stored in 'config/config.json' file:
-  - ```nano config/config.json```
-- Install requirements:
-  - ```go get -t github.com/LeadNess/go-habr-loader```
-- Run app:
-  - ```go run cmd/main.go 2> logs.txt &```
+  - ```nano go-habr-loader/config/config.json```
+- Build docker image:
+  - ```docker build -t go-habr-loader go-habr-loader```
+- Run docker container:
+  - ```docker run --name habr-loader go-habr-loader```

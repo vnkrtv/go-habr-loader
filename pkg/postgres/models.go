@@ -5,7 +5,7 @@ import (
 )
 
 const dbSchema = `
-CREATE TABLE posts (
+CREATE TABLE IF NOT EXISTS posts (
 	post_id  INTEGER 
 			 PRIMARY KEY,
 			 
@@ -15,8 +15,8 @@ CREATE TABLE posts (
 	text     TEXT
 			 NOT NULL,
 			 
-	date    TIMESTAMP
-			NOT NULL,
+	date     TIMESTAMP
+			 NOT NULL,
 			 
 	views_count INTEGER
 			 NOT NULL
@@ -34,14 +34,50 @@ CREATE TABLE posts (
 			 NOT NULL,
 
 	author_nickname TEXT
-             NOT NULL,
-
-	habs_list TEXT
-             NOT NULL,
-
-	tags_list TEXT
              NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS habs (
+	post_id  INTEGER
+			 NOT NULL
+			 DEFAULT 0,
+
+	hab      TEXT
+			 NOT NULL,
+
+	CONSTRAINT fk_post FOREIGN KEY (post_id)
+		REFERENCES posts(post_id)
+			ON UPDATE CASCADE
+			ON DELETE SET DEFAULT,
+
+	CONSTRAINT pk_habs PRIMARY KEY(post_id, hab)
+);
+
+CREATE TABLE IF NOT EXISTS tags (
+	post_id  INTEGER
+			 NOT NULL
+			 DEFAULT 0,
+	
+	tag      TEXT
+			 NOT NULL,
+	
+	CONSTRAINT fk_post FOREIGN KEY (post_id)
+		REFERENCES posts(post_id)
+			ON UPDATE CASCADE
+			ON DELETE SET DEFAULT,
+
+	CONSTRAINT pk_tags PRIMARY KEY(post_id, tag)
 );`
+
+type Hab struct {
+	PostID         int       `db:"post_id"`
+	Hab            string    `db:"hab"`
+}
+
+type Tag struct {
+	PostID         int       `db:"post_id"`
+	Tag            string    `db:"tag"`
+}
 
 type HabrPost struct {
 	ID             int       `db:"post_id"`
@@ -53,6 +89,6 @@ type HabrPost struct {
 	BookmarksCount int       `db:"bookmarks_count"`
 	Rating         string    `db:"rating"`
 	AuthorNickname string    `db:"author_nickname"`
-	HabsList       string    `db:"habs_list"`
-	TagsList       string    `db:"tags_list"`
+	Habs           []Hab
+	Tags           []Tag
 }

@@ -1,8 +1,9 @@
 {
-  "posts_count": 508000,
+  "posts_count": 508,
   "pguser":     "postgres",
   "pgpass":     "password",
-  "pgname":     "habr",
+  "pgname":     "temp_habr",
   "pghost":     "172.17.0.2",
-  "pgport":     "5432"
+  "pgport":     "5432",
+  "interval":   3600
 }

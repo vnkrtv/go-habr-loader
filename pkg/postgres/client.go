@@ -14,7 +14,7 @@ type PostsStorage interface {
 	UpdatePosts(post []HabrPost) error
 }
 
-type NewsStorage interface {
+type HabrStorage interface {
 	PostsStorage
 	CreateSchema() error
 }
@@ -48,12 +48,42 @@ func (s *Storage) InsertPost(post HabrPost) error {
 	sql := `
 		INSERT INTO 
 			posts (post_id, title, text, date, views_count, comments_count, 
-			       bookmarks_count, rating, author_nickname, habs_list, tags_list) 
+			       bookmarks_count, rating, author_nickname) 
 		VALUES 
 			(:post_id, :title, :text, :date, :views_count, :comments_count, 
-			 :bookmarks_count, :rating, :author_nickname, :habs_list, :tags_list)`
-	_, err := s.db.NamedExec(sql, &post)
-	return err
+			 :bookmarks_count, :rating, :author_nickname)
+		ON CONFLICT (post_id)
+    		DO UPDATE SET
+    			title = :title,
+    			text = :text,
+    			views_count = :views_count,
+    			comments_count = :comments_count,
+    			bookmarks_count = :bookmarks_count,
+    			rating = :rating`
+	if _, err := s.db.NamedExec(sql, &post); err != nil {
+		return err
+	}
+	sql = `
+		INSERT INTO
+			habs (post_id, hab)
+		VALUES
+			(:post_id, :hab)`
+	for _, hab := range post.Habs {
+		if _, err := s.db.NamedExec(sql, &hab); err != nil {
+			return err
+		}
+	}
+	sql = `
+		INSERT INTO
+			tags (post_id, tag)
+		VALUES
+			(:post_id, :tag)`
+	for _, tag := range post.Tags {
+		if _, err := s.db.NamedExec(sql, &tag); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (s *Storage) InsertPosts(posts []HabrPost) error {
@@ -71,8 +101,7 @@ func (s *Storage) UpdatePost(post HabrPost) error {
 		UPDATE posts SET 
 			title = :title, text = :text, 
 			views_count = :views_count, comments_count = :comments_count,  
-			bookmarks_count = :bookmarks_count, rating = :rating,
-		    habs_list = :habs_list, tags_list = :tags_list
+			bookmarks_count = :bookmarks_count, rating = :rating
 		WHERE 
 			post_id = :post_id AND date = :date`
 	_, err := s.db.NamedExec(sql, &post)

@@ -39,7 +39,7 @@ func main() {
 				log.Println(err)
 			}
 			for postID := 1 + postsPerGoroutine * i; postID <= postsPerGoroutine * (i + 1); postID++ {
-				time.Sleep(time.Second + time.Millisecond * time.Duration(i * 137 % 3313))
+				time.Sleep(time.Second + time.Millisecond * time.Duration(cfg.Interval + i * 137 % 3313))
 				if err := postsLoader.DownloadPost(postID); err != nil {
 					log.Printf("error: %s\n", err)
 				} else {

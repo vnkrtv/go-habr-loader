@@ -50,16 +50,6 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		return pg.HabrPost{}, err
 	}
 
-	habs, err := getHabs(&doc)
-	if err != nil {
-		return pg.HabrPost{}, err
-	}
-
-	tags, err := getTags(&doc)
-	if err != nil {
-		return pg.HabrPost{}, err
-	}
-
 	viewsCount, err := getViewsCount(&doc)
 	if err != nil {
 		return pg.HabrPost{}, err
@@ -75,6 +65,16 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		return pg.HabrPost{}, err
 	}
 
+	habsSlice, err := getHabsSlice(&doc, postID)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
+	tagsSlice, err := getTagsSlice(&doc, postID)
+	if err != nil {
+		return pg.HabrPost{}, err
+	}
+
 	return pg.HabrPost{
 		ID:             postID,
 		Date:           date,
@@ -84,9 +84,9 @@ func LoadPost(postID int) (pg.HabrPost, error)  {
 		CommentsCount:  commentsCount,
 		BookmarksCount: bookmarksCount,
 		AuthorNickname: authorNode.Text(),
-		HabsList:       habs,
-		TagsList:       tags,
 		Rating:         ratingNode.Text(),
+		Habs:           habsSlice,
+		Tags:           tagsSlice,
 	}, err
 }
 
@@ -136,23 +136,39 @@ func getBookmarksCount(doc *soup.Root) (int, error) {
 	return int(bookmarksCount), err
 }
 
-func getHabs(doc *soup.Root) (string, error) {
+func getHabsSlice(doc *soup.Root, postID int) ([]pg.Hab, error) {
 	habsNode := doc.Find("ul", "class", "js-post-hubs")
 	if habsNode.Pointer == nil {
-		return "", fmt.Errorf("habs ul not found")
+		return nil, fmt.Errorf("habs ul not found")
 	}
-	return parseUlTag(habsNode.FullText()), nil
+	habsStrSlice := parseUlTag(habsNode.FullText())
+	var habsSlice []pg.Hab
+	for _, hab := range habsStrSlice {
+		habsSlice = append(habsSlice, pg.Hab{
+			PostID: postID,
+			Hab:    hab,
+		})
+	}
+	return habsSlice, nil
 }
 
-func getTags(doc *soup.Root) (string, error) {
+func getTagsSlice(doc *soup.Root, postID int) ([]pg.Tag, error) {
 	tagsNode := doc.Find("ul", "class", "js-post-tags")
 	if tagsNode.Pointer == nil {
-		return "", fmt.Errorf("tags ul not found")
+		return nil, fmt.Errorf("tags ul not found")
 	}
-	return parseUlTag(tagsNode.FullText()), nil
+	tagsStrSlice := parseUlTag(tagsNode.FullText())
+	var tagsSlice []pg.Tag
+	for _, tag := range tagsStrSlice {
+		tagsSlice = append(tagsSlice, pg.Tag{
+			PostID: postID,
+			Tag:    tag,
+		})
+	}
+	return tagsSlice, nil
 }
 
-func parseUlTag(content string) string {
+func parseUlTag(content string) []string {
 	bufSlice := strings.Split(content, "\n")
 	var strSlice []string
 	for i := range bufSlice {
@@ -161,7 +177,7 @@ func parseUlTag(content string) string {
 			strSlice = append(strSlice, strings.TrimSpace(bufSlice[i]))
 		}
 	}
-	return strings.Join(strSlice, ",")
+	return strSlice
 }
 
 func parseViewsSpan(viewsSpan string) (int, error) {
