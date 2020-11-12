@@ -1,4 +1,4 @@
-module github.com/LeadNess/go-habr-loader
+module github.com/vnkrtv/go-habr-loader
 
 go 1.14
 

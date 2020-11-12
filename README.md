@@ -1,6 +1,6 @@
 # go-habr-loader
 
-[![Build Status](https://travis-ci.com/LeadNess/go-habr-loader.svg?branch=master)](https://travis-ci.com/LeadNess/go-habr-loader)
+[![Build Status](https://travis-ci.com/vnkrtv/go-habr-loader.svg?branch=master)](https://travis-ci.com/vnkrtv/go-habr-loader)
 ### Description
 
 Loads all posts from habr.com to PostgreSQL.
@@ -8,7 +8,7 @@ Loads all posts from habr.com to PostgreSQL.
 ### Installation
 
 - Clone this repository:
-  - ```git clone https://github.com/LeadNess/go-habr-loader.git```
+  - ```git clone https://github.com/vnkrtv/go-habr-loader.git```
 - Set settings (such as PostgreSQL connection information) which are stored in 'config/config.json' file:
   - ```nano go-habr-loader/config/config.json```
 - Build docker image:

@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	pg "github.com/LeadNess/go-habr-loader/pkg/postgres"
+	pg "github.com/vnkrtv/go-habr-loader/pkg/postgres"
 	"github.com/anaskhan96/soup"
 )
 
