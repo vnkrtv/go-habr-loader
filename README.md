@@ -15,3 +15,8 @@ Loads all posts from habr.com to PostgreSQL.
   - ```docker build -t go-habr-loader go-habr-loader```
 - Run docker container:
   - ```docker run --name habr-loader go-habr-loader```
+
+
+### Dataset
+
+Dataset loaded by tool - https://www.kaggle.com/datasets/leadness/habr-posts.
